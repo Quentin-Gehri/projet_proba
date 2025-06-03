@@ -90,6 +90,7 @@ class PoissonQueueSimulator:
 def _run():
     simulator = PoissonQueueSimulator(arrival_rate, service_rate, num_visitors, num_queues, queue_policy)
     visitors, max_queue_lengths, average_waiting_times = simulator.simulate()
+    '''
     print("Visitors:")
     print(f"Visitor ID;Arrival Time;Start Time;End Time;Process Time;Total Time;Queue ID")
     for visitor in visitors:
@@ -97,17 +98,73 @@ def _run():
                 f"{visitor['start_time']};{visitor['end_time']};"
                 f"{visitor['process_time']};{visitor['total_time']};"
                 f"{visitor['queue_id']}")
+    '''
     print("\nQueue Stats:")
     for queue_id, max_length in enumerate(max_queue_lengths):
             print(f"Queue ID: {queue_id}, Max Queue Length: {max_length}, Average Waiting Time: {average_waiting_times[queue_id]}")
+    
+    moyenne = sum(average_waiting_times) / len(average_waiting_times)
+    tmp = sorted(average_waiting_times)
+    if (len(average_waiting_times) % 2 == 1):
+        mediane = tmp[int(len(average_waiting_times) / 2)]
+    else:
+        mediane = (tmp[int(len(average_waiting_times) / 2)-1] + tmp[int(len(average_waiting_times) / 2)]) / 2
+    variance = sum((x - moyenne) ** 2 for x in average_waiting_times) / len(average_waiting_times)
+    # Ecart-type
+    import math
+    ecartType = math.sqrt(variance)
+
+    print("Moyenne : ", moyenne)
+    print("Mediane : ", mediane)
+    print("Variance : ", round(variance, 2))
+    print("Ecart-type : ", round(ecartType, 2))
+
+
+def test_central_limit_theorem(num_runs=100):
+    all_means = []
+    for _ in range(num_runs):
+        simulator = PoissonQueueSimulator(arrival_rate, service_rate, num_visitors, num_queues, queue_policy)
+        _, _, avg_waits = simulator.simulate()
+        overall_mean_wait = np.mean(avg_waits)
+        all_means.append(overall_mean_wait)
+    
+    mean_of_means = np.mean(all_means)
+    std_of_means = np.std(all_means)
+    print(f"Moyenne des temps d'attente moyens: {mean_of_means}")
+    print(f"Écart-type des temps d'attente moyens: {std_of_means}")
+    
+    # Visualisation optionnelle (si matplotlib dispo)
+    
+    import matplotlib.pyplot as plt
+    plt.hist(all_means, bins=20, edgecolor='black', alpha=0.7, density=True)
+    from scipy.stats import norm
+    x = np.linspace(min(all_means), max(all_means), 100)
+    plt.plot(x, norm.pdf(x, mean_of_means, std_of_means), color='red', label='Courbe normale')
+    plt.title("Distribution des temps d'attente moyens")
+    plt.xlabel("Temps d'attente moyen")
+    plt.ylabel("Densité")
+    plt.legend()
+    plt.show()
+
 
 # Example usage
 seed = int(time.time())
 np.random.seed(seed)
 arrival_rate = 10  # average arrival rate of n visitors per time unit
 service_rate = 1  # average service rate of n visitors per time unit
-num_visitors = 20  # total number of visitors to simulate
-num_queues = 8  # total number of queues
-queue_policy = 'shortest-queue'  # queue selection policy: random, round-robin, shortest-queue
+num_visitors = 2000  # total number of visitors to simulate
+num_queues = 9  # total number of queues
 
+queue_policy = 'round-robin'  # queue selection policy: random, round-robin, shortest-queue
+print("\n\nPolitique: ", queue_policy)
 _run()
+
+queue_policy = 'random'
+print("\n\nPolitique: ", queue_policy)
+_run()
+
+queue_policy = 'shortest-queue'
+print("\n\nPolitique: ", queue_policy)
+_run()
+
+test_central_limit_theorem(1000)
