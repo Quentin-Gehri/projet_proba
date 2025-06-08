@@ -215,10 +215,10 @@ queue_policy = 'shortest-queue'
 test_central_limit_theorem(8000)
 
 
-arrival_rate = 10# average arrival rate of n visitors per time unit
-service_rate = 0.5 # average service rate of n visitors per time unit  
-num_visitors = 6600  # total number of visitors to simulate
-num_queues = 20  # total number of queues
+arrival_rate = 9.02# average arrival rate of n visitors per time unit
+service_rate = 0.33 # average service rate of n visitors per time unit  
+num_visitors = 6500  # total number of visitors to simulate
+num_queues = 15  # total number of queues
 
 
 queue_policy = 'round-robin'  # queue selection policy: random, round-robin, shortest-queue
