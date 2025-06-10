@@ -133,13 +133,13 @@ def test_central_limit_theorem(num_runs=100):
     
     mean_of_means = np.mean(all_means)
     std_of_means = np.std(all_means)
-    print(f"Moyenne des temps d'attente moyens: {mean_of_means}")
+    print(f"Moyennes des temps d'attentes moyens: {mean_of_means}")
     print(f"Écart-type des temps d'attente moyens: {std_of_means}")
         
     plt.hist(all_means, bins=20, edgecolor='black', alpha=0.7, density=True)
     x = np.linspace(min(all_means), max(all_means), 100)
     plt.plot(x, norm.pdf(x, mean_of_means, std_of_means), color='red', label='Courbe normale')
-    plt.title(f"Distribution des temps d'attente moyens pour {num_runs} simulations")
+    plt.title(f"Distribution des temps d'attente pour {num_runs} simulations")
     plt.xlabel("Temps d'attente moyen (minutes)")
     plt.ylabel("Densité")
     plt.legend()
@@ -185,21 +185,36 @@ def run_multiple_simulations_per_policy(n=100):
     # Liste des statistiques à afficher
     stat_names = ['mean_of_means', 'mean_of_medians', 'mean_of_variances', 'mean_of_std_devs']
     stat_labels = ['Moyenne', 'Médiane', 'Variance', 'Écart-type']
-    y_labels = ['Temps d\'attente', 'Temps d\'attente', 'Variance', 'Écart-type']
+    y_labels = ['Moyenne d\'attente en minutes', 'Moyenne d\'attente en minutes', 'Moyenne d\'attente en minutes', 'Moyenne d\'attente en minutes']
 
     # Générer un graphique pour chaque statistique
     for stat_name, label, ylab in zip(stat_names, stat_labels, y_labels):
         plt.figure(figsize=(8, 5))
         values = aggregate[stat_name]
-        bars = plt.bar(policies, values, color='orange', edgecolor='black')
+        
+        # Couleurs douces pour chaque barre
+        colors = ['lightcoral', 'sandybrown', 'palegreen', 'mediumaquamarine', 'plum', 'lightblue']
+        bars = plt.bar(policies, values, color=colors[:len(policies)], edgecolor='black')
+        
+        # Affichage des valeurs au-dessus des barres
         for bar in bars:
             yval = bar.get_height()
-            plt.text(bar.get_x() + bar.get_width()/2, yval + 0.002, f'{yval:.3f}', ha='center', va='bottom', fontsize=9)
-        plt.title(f"{label} des temps d'attente moyens sur {n} simulations")
+            plt.text(bar.get_x() + bar.get_width()/2, yval + 0.5, f'{yval:.3f}', 
+                    ha='center', va='bottom', fontsize=9)
+
+        # Ligne horizontale à 4 minutes
+        #plt.axhline(y=6.16, color='blue', linestyle='-', linewidth=1.5, label="Tolérance (6min16)")
+        
+        # Ajout d'une légende pour la ligne
+        #plt.legend(loc='upper right', fontsize=9)
+        
+        plt.title(f"{label} des temps d'attente en minutes sur {n} simulations (5 caisses)")
         plt.ylabel(ylab)
         plt.grid(axis='y', linestyle='--', alpha=0.7)
         plt.tight_layout()
+        plt.ylim(0, max(values) * 1.2)
         plt.show()
+
 
 
 
@@ -207,19 +222,20 @@ def run_multiple_simulations_per_policy(n=100):
 seed = int(time.time())
 np.random.seed(seed)
 
-arrival_rate = 10  # average arrival rate of n visitors per time unit
+# SEMAINE STAT
+arrival_rate = 4.9  # average arrival rate of n visitors per time unit
 service_rate = 1  # average service rate of n visitors per time unit
-num_visitors = 2000  # total number of visitors to simulate
-num_queues = 9  # total number of queues
-queue_policy = 'shortest-queue'
-test_central_limit_theorem(8000)
+num_visitors = 3300  # total number of visitors to simulate
+num_queues = 5  # total number of queues
 
 
-arrival_rate = 9.02# average arrival rate of n visitors per time unit
-service_rate = 0.33 # average service rate of n visitors per time unit  
-num_visitors = 6500  # total number of visitors to simulate
-num_queues = 15  # total number of queues
+#test_central_limit_theorem(8000)
 
+# WEEKEND STAT
+#arrival_rate = 10.3# average arrival rate of n visitors per time unit
+#service_rate = 0.7 # average service rate of n visitors per time unit  
+#num_visitors = 6500  # total number of visitors to simulate
+#num_queues = 15  # total number of queues
 
 queue_policy = 'round-robin'  # queue selection policy: random, round-robin, shortest-queue
 print("\n\nPolitique: ", queue_policy)
@@ -233,4 +249,4 @@ queue_policy = 'shortest-queue'
 print("\n\nPolitique: ", queue_policy)
 _run()
 
-run_multiple_simulations_per_policy(100)
+run_multiple_simulations_per_policy(1000)
